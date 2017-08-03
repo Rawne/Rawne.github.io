@@ -18,6 +18,7 @@
 		Listen: <input id="listen" type="text" placeholder="event name"/>
   	  	<input id="add-listen" type="button" value="Add"/> </br> 
 	  </div>
+	<div id="listening"> Listening to: </div>
   </div> </br> </br>
   <div id="output" />
   <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
@@ -31,6 +32,7 @@ $( "#go" ).on( "click", function( event ) {
 $( "#add-listen" ).on( "click", function( event ) {
   var name = $("#listen").val();
   if(openSocket && name) {
+      $("#listening").append(name +  "</br>");
     openSocket.on(name, function(event) {
 	display(name + " received: " + JSON.parse(event));
 	console.log(name + ": " + JSON.parse(event));
@@ -71,6 +73,7 @@ function init(url, token) {
 		  throw new Error(msg.data.type);
 		})
 		.on('message', function(msg) {
+      		  $("#listening").append('message' +  "</br>");
 		  display("message: " + JSON.parse(msg)._text);
 		  console.log("message: " + JSON.parse(msg)._text);
 		})
