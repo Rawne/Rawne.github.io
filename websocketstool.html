@@ -90,11 +90,11 @@ function init(url, token) {
 		})
 		.on('disconnect', function() {
 			showEmit(false);
+	          $("#listening").text('Listening to: ');
 		  
 		  display("disconnected");
 		  console.log("disconnected");
 		});
-		$("#listening").text('Listening to: ');
 		// socket.disconnect();
 	});
 	return socket;
