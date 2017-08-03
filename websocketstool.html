@@ -25,18 +25,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
   <script>  
 var openSocket;
+var listening = [];
 $( "#go" ).on( "click", function( event ) {
   openSocket ? openSocket.disconnect() : null;
   openSocket = init($("#url").val(), $("#token").val());
 });
 $( "#add-listen" ).on( "click", function( event ) {
   var name = $("#listen").val();
+  listening.push(name);
   if(openSocket && name) {
-      $("#listening").append(name +  "</br>");
-    openSocket.on(name, function(event) {
-	display(name + " received: " + JSON.parse(event));
-	console.log(name + ": " + JSON.parse(event));
-    });
+    listen(name);
   }
 });
 $( "#emit" ).on( "click", function( event ) {
@@ -45,6 +43,13 @@ $( "#emit" ).on( "click", function( event ) {
 	display("emitted: " + title + ", with value: " + body);
 	openSocket.emit(title, body);
 });
+function listen(name) {
+    $("#listening").append(name +  "</br>");
+    openSocket.on(name, function(event) {
+	display(name + " received: " + JSON.parse(event));
+	console.log(name + ": " + JSON.parse(event));
+    });  
+	  }
 function display(text) {
       $("#output").append(text +  "</br>");
 }
@@ -58,9 +63,16 @@ function init(url, token) {
 	display("initializing with url: " + url);
 	var socket = io.connect(url);
 	socket.on('connect', function () {
-		display("connected!")
+		display("connected!");
 		showEmit(true);
+		if(listening.length > 0) {
+		    console.log('restarted listening!');
+		    listening.forEach((name)=> {
+		    	listen(name);
+		    });
+		}
 	  console.log('connected!');
+      	  $("#listening").append('message' +  "</br>");
 	  socket
 		.emit('authenticate', {token: token}) //send the jwt
 		.on('authenticated', function () {
@@ -73,16 +85,16 @@ function init(url, token) {
 		  throw new Error(msg.data.type);
 		})
 		.on('message', function(msg) {
-      		  $("#listening").append('message' +  "</br>");
 		  display("message: " + JSON.parse(msg)._text);
 		  console.log("message: " + JSON.parse(msg)._text);
 		})
 		.on('disconnect', function() {
 			showEmit(false);
+		  
 		  display("disconnected");
 		  console.log("disconnected");
 		});
-		
+		$("#listening").text('Listening to: ');
 		// socket.disconnect();
 	});
 	return socket;
