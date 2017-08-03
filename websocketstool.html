@@ -9,13 +9,16 @@
   URL: <input id="url" type="text" value="http://localhost:8080"/>
   <input id="go" type="button" value="Go"/> </br>
   Auth token(optional): <input id="token" type="password" placeholder=""/>
-  <div id="emit_block" style="display:none">
+  <div id="connected_block" style="display:none">
 	  Emit title: <input id="emit_heading" type="text" value="" </br>
 	  Emit value: <input id="emit_value" type="text" value="{}" </br>
 	  <input id="emit" type="button" value="Emit"/>
+	  
+    	  <div> 
+		Listen: <input id="listen" type="text" placeholder="event name"/>
+  	  	<input id="add-listen" type="button" value="Add"/> </br> 
+	  </div>
   </div> </br> </br>
-<div> Listen: <input id="listen" type="text" placeholder="event name"/>
-  <input id="add-listen" type="button" value="Add"/> </br> </div>
   <div id="output" />
   <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
@@ -29,8 +32,8 @@ $( "#add-listen" ).on( "click", function( event ) {
   var name = $("#listen").val();
   if(openSocket && name) {
     openSocket.on(name, function(event) {
-	display(name + " received: " + JSON.parse(event))
-	console.log(name ": " + JSON.parse(event));
+	display(name + " received: " + JSON.parse(event));
+	console.log(name + ": " + JSON.parse(event));
     });
   }
 });
@@ -45,8 +48,8 @@ function display(text) {
 }
 
 function showEmit(show) {
-	if(show) $("#emit_block").show();
-	else $("#emit_block").hide();
+	if(show) $("#connected_block").show();
+	else $("#connected_block").hide();
 }
 
 function init(url, token) {
@@ -63,17 +66,17 @@ function init(url, token) {
 			console.log("authenticated");
 		})
 		.on('unauthorized', function(msg) {
-		  display("unauthorized: " + JSON.stringify(msg.data))
+		  display("unauthorized: " + JSON.stringify(msg.data));
 		  console.log("unauthorized: " + JSON.stringify(msg.data));
 		  throw new Error(msg.data.type);
 		})
 		.on('message', function(msg) {
-		  display("message: " + JSON.parse(msg)._text)
+		  display("message: " + JSON.parse(msg)._text);
 		  console.log("message: " + JSON.parse(msg)._text);
 		})
 		.on('disconnect', function() {
 			showEmit(false);
-		  display("disconnected")
+		  display("disconnected");
 		  console.log("disconnected");
 		});
 		
