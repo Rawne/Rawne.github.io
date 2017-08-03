@@ -14,6 +14,8 @@
 	  Emit value: <input id="emit_value" type="text" value="{}" </br>
 	  <input id="emit" type="button" value="Emit"/>
   </div> </br> </br>
+<div> Listen: <input id="listen" type="text" placeholder="event name"/>
+  <input id="add-listen" type="button" value="Add"/> </br> </div>
   <div id="output" />
   <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
@@ -22,6 +24,15 @@ var openSocket;
 $( "#go" ).on( "click", function( event ) {
   openSocket ? openSocket.disconnect() : null;
   openSocket = init($("#url").val(), $("#token").val());
+});
+$( "#add-listen" ).on( "click", function( event ) {
+  var name = $("#listen").val();
+  if(openSocket && name) {
+    openSocket.on(name, function(event) {
+	display(name + " received: " + JSON.parse(event))
+	console.log(name ": " + JSON.parse(event));
+    });
+  }
 });
 $( "#emit" ).on( "click", function( event ) {
 	var title = $("#emit_heading").val();
@@ -59,10 +70,6 @@ function init(url, token) {
 		.on('message', function(msg) {
 		  display("message: " + JSON.parse(msg)._text)
 		  console.log("message: " + JSON.parse(msg)._text);
-		})
-		.on('customSlide', function(slide) {
-		  display("slide: " + JSON.parse(slide))
-		  console.log("slide: " + JSON.parse(slide));
 		})
 		.on('disconnect', function() {
 			showEmit(false);
